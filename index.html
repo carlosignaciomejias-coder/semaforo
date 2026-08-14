@@ -1,678 +1,724 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#0f172a">
-    <title>Semáforo de Presentaciones</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semáforo Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-        }
-
-        .font-mono-timer {
-            font-family: 'JetBrains Mono', monospace;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .light {
-            transition: all 0.4s ease-in-out;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        .glow-red {
-            background-color: #ef4444 !important;
-            box-shadow: 0 0 40px #ef4444, inset 0 0 10px rgba(255,255,255,0.5) !important;
-        }
-
-        .glow-yellow {
-            background-color: #eab308 !important;
-            box-shadow: 0 0 40px #eab308, inset 0 0 10px rgba(255,255,255,0.5) !important;
-        }
-
-        .glow-green {
-            background-color: #22c55e !important;
-            box-shadow: 0 0 40px #22c55e, inset 0 0 10px rgba(255,255,255,0.5) !important;
-        }
-
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 selection:bg-blue-500 selection:text-white bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300">
+<body id="appBody" class="h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300">
 
-    <div class="absolute top-4 right-4 flex items-center gap-3 z-10">
-        <!-- Botón de Tema (Dark/Light) -->
-        <button id="theme-btn" class="p-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-slate-400" title="Cambiar Tema">
-            <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M216.7,152.6A100.9,100.9,0,0,1,103.4,39.3a8,8,0,0,0-10.5-8.9A100,100,0,0,0,32,128a99.1,99.1,0,0,0,29.3,70.7A100,100,0,0,0,128,224a100.5,100.5,0,0,0,97.6-77.5A8,8,0,0,0,216.7,152.6ZM128,208A84,84,0,0,1,59.3,71.2,84.7,84.7,0,0,0,184.8,196.7,83.7,83.7,0,0,1,128,208Z"></path></svg>
-            <svg id="icon-sun" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.11,64.11,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm192-8h-24a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Zm-112,72a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V200A8,8,0,0,0,128,192Z"></path></svg>
-        </button>
-        <!-- Botón de Pantalla Completa -->
-        <button id="fullscreen-btn" class="p-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-slate-400" title="Pantalla Completa">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256">
-                <path d="M216,48V88a8,8,0,0,1-16,0V56H168a8,8,0,0,1,0-16h40A8,8,0,0,1,216,48ZM88,200H56V168a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H88a8,8,0,0,0,0-16Zm120-40a8,8,0,0,0-8,8v32H168a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V168A8,8,0,0,0,208,160ZM88,40H48a8,8,0,0,0-8,8V88a8,8,0,0,0,16,0V56H88a8,8,0,0,0,0-16Z"></path>
-            </svg>
-        </button>
-    </div>
-
-    <div class="w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-16">
-        
-        <!-- PANEL IZQUIERDO: Semáforo y Cronómetro -->
-        <div class="flex flex-col items-center flex-shrink-0 w-full lg:w-auto">
-            <!-- Carcasa del semáforo -->
-            <div class="bg-white dark:bg-slate-800 p-4 sm:p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] shadow-2xl border border-slate-300 dark:border-slate-700 flex flex-col items-center transition-colors duration-300 w-full max-w-md lg:max-w-none">
-                
-                <!-- Luces del semáforo (Flex-row en móvil para ahorrar espacio vertical, vertical en desktop) -->
-                <div class="flex flex-row lg:flex-col gap-4 sm:gap-6 items-center justify-center w-full">
-                    <!-- Luz Roja -->
-                    <div id="light-red" class="light w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 rounded-full bg-red-950/40 border-4 border-slate-300 dark:border-slate-900 flex-shrink-0"></div>
-                    
-                    <!-- Luz Amarilla -->
-                    <div id="light-yellow" class="light w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 rounded-full bg-yellow-950/40 border-4 border-slate-300 dark:border-slate-900 flex-shrink-0"></div>
-                    
-                    <!-- Luz Verde -->
-                    <div id="light-green" class="light w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 rounded-full bg-green-950/40 border-4 border-slate-300 dark:border-slate-900 flex-shrink-0"></div>
-                </div>
-                
-                <!-- Controles de Sonido -->
-                <div class="mt-5 lg:mt-6 flex items-center justify-center gap-3 bg-slate-100 dark:bg-slate-900/60 py-2 px-4 rounded-full border border-slate-300 dark:border-slate-700 w-full transition-colors duration-300">
-                    <button id="btn-sound" class="text-blue-600 dark:text-blue-400 hover:text-slate-900 dark:hover:text-white transition-colors focus:outline-none" title="Activar/Desactivar Sonido">
-                        <svg id="icon-sound-on" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M152,152a8,8,0,0,1-8,8H106.63L73.18,187A8,8,0,0,1,60,181.33V74.67a8,8,0,0,1,13.18-5.66L106.63,96H144a8,8,0,0,1,8,8v48Zm40-24a47.8,47.8,0,0,0-14.12-33.88,8,8,0,1,0-11.31,11.31,32,32,0,0,1,0,45.14,8,8,0,0,0,11.31,11.31A47.8,47.8,0,0,0,192,128Zm64,0a111.66,111.66,0,0,0-32.91-79.09,8,8,0,0,0-11.31,11.32A96,96,0,0,1,240,128a96,96,0,0,1-28.22,67.77,8,8,0,1,0,11.31,11.32A111.66,111.66,0,0,0,256,128Zm-32,0a79.8,79.8,0,0,0-23.51-56.51,8,8,0,0,0-11.31,11.32A64,64,0,0,1,208,128a64,64,0,0,1-18.82,45.19,8,8,0,1,0,11.31,11.32A79.8,79.8,0,0,0,224,128Z"></path></svg>
-                        <svg id="icon-sound-off" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M213.92,104.62a8,8,0,1,0-11.84-10.76A111.45,111.45,0,0,0,187.72,130.6a8,8,0,1,0,14.54,6.76A127.32,127.32,0,0,1,213.92,104.62Zm-14.15,92A8,8,0,1,0,188,185.34a95.3,95.3,0,0,1-12.29-16.71,8,8,0,1,0-13.88,8A111.44,111.44,0,0,0,199.77,196.59ZM214,24a8,8,0,0,0-11.31,0L35.53,191.13A8,8,0,0,0,46.85,202.44L61,188.35v1.27a8,8,0,0,0,13.18,5.65L106.63,169h37.37a8,8,0,0,0,8-8V119l62-62A8,8,0,0,0,214,24Zm-78,129H106.63L77,177V95.73l59,59ZM145.45,74.52a8,8,0,1,0-10.9-11L104,94.07,115.34,105.4l23.51-22.33A8,8,0,0,0,145.45,74.52Zm80,10A111.61,111.61,0,0,0,192.54,48.91a8,8,0,1,0-11.31,11.32A96,96,0,0,1,209.46,120.4a8,8,0,0,0,14.54,6.76A111.23,111.23,0,0,0,225.46,84.51Zm-32,10A79.76,79.76,0,0,0,169.93,60.22a8,8,0,1,0-11.31,11.31A64,64,0,0,1,179.93,101.8a8,8,0,1,0,14.54,6.76A79.52,79.52,0,0,0,193.46,94.51Z"></path></svg>
-                    </button>
-                    <span id="sound-status-text" class="text-sm text-blue-600 dark:text-blue-400 font-semibold uppercase tracking-wider">Sonido ON</span>
-                </div>
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300" id="headerEl">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
             </div>
-
-            <!-- Cronómetro Display -->
-            <div class="mt-6 lg:mt-8 bg-white dark:bg-slate-900/80 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl border border-slate-300 dark:border-slate-700 shadow-inner transition-colors duration-300">
-                <div id="timer-display" class="font-mono-timer text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md">
-                    00:00
-                </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight">Semáforo Pro</h1>
+                <p class="text-xs text-slate-400">Control inteligente de presentaciones con semáforo y avisos sonoros</p>
+                <p class="text-[10px] text-indigo-400 font-medium mt-0.5">Desarrollado por Carlos Mejías • Potenciado con Gemini</p>
             </div>
         </div>
+        <div class="flex items-center space-x-2">
+            <button onclick="toggleTheme()" id="themeToggleBtn" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200" title="Cambiar Tema Oscuro/Claro">
+                <svg id="themeIcon" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+                <span id="themeText">Modo Oscuro</span>
+            </button>
+            <button onclick="toggleAudioEngine()" id="audioStatusBtn" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-3 py-2 rounded-lg border border-slate-700 transition">
+                <span id="audioIndicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="audioStatusText">Audio Activo</span>
+            </button>
+        </div>
+    </header>
 
-        <!-- PANEL DERECHO: Configuración y Controles -->
-        <div class="w-full max-w-md flex flex-col gap-6">
-            
-            <!-- Tarjeta de Configuración -->
-            <div id="config-card" class="bg-white/80 dark:bg-slate-800/80 p-6 rounded-3xl border border-slate-300 dark:border-slate-700 shadow-xl backdrop-blur-sm transition-all duration-500">
-                <h2 class="text-xl font-bold mb-6 text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,88a40,40,0,1,0,40,40A40,40,0,0,0,128,88Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,152Zm110-41.72-27.46-9.15a81.16,81.16,0,0,0-7.39-17.84l13.56-25.56a16,16,0,0,0-6.19-21.28L191,25.68a16,16,0,0,0-21.29,6.18L156.12,57.41a81.16,81.16,0,0,0-17.84-7.39L129.13,22.56A16,16,0,0,0,114.05,8h-24a16,16,0,0,0-15.08,14.56l-9.15,27.46a81.16,81.16,0,0,0-17.84,7.39L22.45,43.86a16,16,0,0,0-21.28,6.19L11.5,69.57a16,16,0,0,0,6.18,21.29l25.55,13.56a81.16,81.16,0,0,0-7.39,17.84L8.38,131.41A16,16,0,0,0-6.18,146.49v24a16,16,0,0,0,14.56,15.08l27.46,9.15a81.16,81.16,0,0,0,7.39,17.84l-13.56,25.56a16,16,0,0,0,6.19,21.28L55,230.32a16,16,0,0,0,21.29-6.18l13.55-25.55a81.16,81.16,0,0,0,17.84,7.39l9.15,27.46A16,16,0,0,0,131.95,248h24a16,16,0,0,0,15.08-14.56l9.15-27.46a81.16,81.16,0,0,0,17.84-7.39l25.56,13.56a16,16,0,0,0,21.28-6.19l10.33-19.52a16,16,0,0,0-6.18-21.29l-25.55-13.56a81.16,81.16,0,0,0,7.39-17.84l27.46-9.15A16,16,0,0,0,244.18,114.49Z"></path></svg>
-                    Configuración (Cuenta Regresiva)
-                </h2>
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6 transition-all duration-300">
+        
+        <section id="sidebarSection" class="lg:col-span-1 space-y-6 transition-all duration-300">
+            <div id="cardPresets" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md transition-colors duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Escenarios Rápidos y Bloques</h3>
+                    <button onclick="openCustomConfig()" class="flex items-center space-x-1 text-xs text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-2.5 py-1 rounded-lg border border-indigo-500/30 transition">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>Personalizado</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="loadPreset('Test Rápido (30s)', 0, 30)" class="text-left bg-indigo-950/40 hover:bg-indigo-900/40 border border-indigo-800/60 p-2.5 rounded-xl transition text-xs">
+                        <div class="font-semibold text-indigo-300">Test Rápido</div>
+                        <div class="text-[10px] text-indigo-400">30 segundos</div>
+                    </button>
+                    <button onclick="loadPreset('Lightning Talk', 3, 0)" class="preset-btn text-left bg-slate-950 hover:bg-slate-800/80 border border-slate-800 p-2.5 rounded-xl transition text-xs">
+                        <div class="font-semibold text-slate-200 preset-title">Lightning Talk</div>
+                        <div class="text-[10px] text-slate-400">3 minutos</div>
+                    </button>
+                    <button onclick="loadPreset('Pitch Estándar', 5, 0)" class="preset-btn text-left bg-slate-950 hover:bg-slate-800/80 border border-slate-800 p-2.5 rounded-xl transition text-xs">
+                        <div class="font-semibold text-slate-200 preset-title">Pitch Estándar</div>
+                        <div class="text-[10px] text-slate-400">5 minutos</div>
+                    </button>
+                    <button onclick="loadPreset('Presentación de 10 min', 10, 0)" class="preset-btn text-left bg-slate-950 hover:bg-slate-800/80 border border-slate-800 p-2.5 rounded-xl transition text-xs">
+                        <div class="font-semibold text-slate-200 preset-title">Sesión 10 min</div>
+                        <div class="text-[10px] text-slate-400">10 minutos</div>
+                    </button>
+                    <button onclick="loadPreset('Conferencia Magistral', 15, 0)" class="preset-btn text-left bg-slate-950 hover:bg-slate-800/80 border border-slate-800 p-2.5 rounded-xl transition text-xs">
+                        <div class="font-semibold text-slate-200 preset-title">Magistral</div>
+                        <div class="text-[10px] text-slate-400">15 minutos</div>
+                    </button>
+                    <button onclick="loadPreset('Defensa de Tesis', 20, 0)" class="preset-btn text-left bg-slate-950 hover:bg-slate-800/80 border border-slate-800 p-2.5 rounded-xl transition text-xs">
+                        <div class="font-semibold text-slate-200 preset-title">Defensa Tesis</div>
+                        <div class="text-[10px] text-slate-400">20 minutos</div>
+                    </button>
+                    <button onclick="loadPreset('Clase 1 Bloque', 40, 0)" class="text-left bg-violet-950/40 hover:bg-violet-900/40 border border-violet-800/60 p-2.5 rounded-xl transition text-xs">
+                        <div class="font-semibold text-violet-300">1 Bloque</div>
+                        <div class="text-[10px] text-violet-400">40 minutos</div>
+                    </button>
+                    <button onclick="loadPreset('Clase 2 Bloques', 80, 0)" class="text-left bg-violet-950/40 hover:bg-violet-900/40 border border-violet-800/60 p-2.5 rounded-xl transition text-xs">
+                        <div class="font-semibold text-violet-300">2 Bloques</div>
+                        <div class="text-[10px] text-violet-400">80 minutos</div>
+                    </button>
+                </div>
+            </div>
 
-                <!-- Escenarios Rápidos -->
-                <div id="presets-container" class="mb-6 pb-6 border-b border-slate-300 dark:border-slate-700/50 transition-all duration-500 overflow-hidden">
-                    <label class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-3 block">Escenarios Rápidos:</label>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="preset-btn bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm py-1.5 px-3.5 rounded-full transition-all border border-slate-300 dark:border-slate-600 hover:border-blue-500" data-preset="test">Test (1m)</button>
-                        <button class="preset-btn bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm py-1.5 px-3.5 rounded-full transition-all border border-slate-300 dark:border-slate-600 hover:border-blue-500" data-preset="pitch">Pitch (3m)</button>
-                        <button class="preset-btn bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm py-1.5 px-3.5 rounded-full transition-all border border-slate-300 dark:border-slate-600 hover:border-blue-500" data-preset="short">Relámpago (5m)</button>
-                        <button class="preset-btn bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm py-1.5 px-3.5 rounded-full transition-all border border-slate-300 dark:border-slate-600 hover:border-blue-500" data-preset="standard">Estándar (10m)</button>
-                        <button class="preset-btn bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm py-1.5 px-3.5 rounded-full transition-all border border-slate-300 dark:border-slate-600 hover:border-blue-500" data-preset="conference">Charla (15m)</button>
-                        <button class="preset-btn bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm py-1.5 px-3.5 rounded-full transition-all border border-slate-300 dark:border-slate-600 hover:border-blue-500" data-preset="thesis">Tesis (20m)</button>
-                    </div>
+            <div id="cardControls" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md space-y-4 transition-colors duration-300">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Controles del Temporizador</h3>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="pauseTimer()" id="btnPause" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 px-3 rounded-xl border border-slate-700 transition text-xs flex items-center justify-center space-x-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Pausar</span>
+                    </button>
+                    <button onclick="resetTimer()" id="btnReset" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 px-3 rounded-xl border border-slate-700 transition text-xs flex items-center justify-center space-x-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        <span>Reiniciar</span>
+                    </button>
+                    <button onclick="startTimer()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-3 rounded-xl shadow-lg shadow-indigo-600/30 transition text-xs flex items-center justify-center space-x-1.5 col-span-3 sm:col-span-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Iniciar</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hidden">
+                <input type="text" id="presTitle" value="Pitch de Proyecto Principal">
+                <input type="number" id="presMinutes" value="5">
+                <input type="number" id="presSeconds" value="0">
+                <input type="checkbox" id="halfwayAlert" checked>
+            </div>
+        </section>
+
+        <section id="cardMain" class="lg:col-span-2 flex flex-col justify-between bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md relative overflow-hidden transition-colors duration-300">
+            <div id="glowBg" class="absolute -top-24 -right-24 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none transition-all duration-500"></div>
+
+            <div class="flex items-center justify-between z-10 flex-wrap gap-3">
+                <div class="flex items-center space-x-3">
+                    <button id="restoreSidebarBtn" onclick="toggleSidebarExpansion()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1.5" title="Mostrar controles">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        <span>Mostrar Menú</span>
+                    </button>
+                    <span id="activeTitleDisplay" class="text-xs font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">Pitch de Proyecto Principal</span>
                 </div>
                 
-                <div id="inputs-group" class="space-y-4 transition-all duration-500 overflow-hidden">
-                    <!-- Config Verde -->
-                    <div class="flex items-center justify-between group">
-                        <label class="text-green-600 dark:text-green-400 font-semibold flex items-center gap-2 text-sm sm:text-base">
-                            <span class="w-3 h-3 flex-shrink-0 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></span>
-                            Luz Verde (Total):
-                        </label>
-                        <div class="flex items-center bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden border border-slate-300 dark:border-slate-700 focus-within:border-green-500 transition-colors">
-                            <input type="number" id="input-green-m" value="10" min="0" placeholder="MM" class="w-10 sm:w-12 bg-transparent text-slate-900 dark:text-white text-right font-mono-timer py-2 outline-none">
-                            <span class="text-slate-400 dark:text-slate-500 px-1 font-mono-timer font-bold pb-1">:</span>
-                            <input type="number" id="input-green-s" value="00" min="0" max="59" placeholder="SS" class="w-10 sm:w-12 bg-transparent text-slate-900 dark:text-white text-left font-mono-timer py-2 outline-none">
-                        </div>
-                    </div>
+                <div id="statusBadge" class="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">
+                    En Espera
+                </div>
+            </div>
 
-                    <!-- Config Amarilla -->
-                    <div class="flex items-center justify-between group">
-                        <label class="text-yellow-600 dark:text-yellow-400 font-semibold flex items-center gap-2 text-sm sm:text-base">
-                            <span class="w-3 h-3 flex-shrink-0 rounded-full bg-yellow-500 shadow-[0_0_8px_#eab308]"></span>
-                            Luz Amarilla (Aviso):
-                        </label>
-                        <div class="flex items-center bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden border border-slate-300 dark:border-slate-700 focus-within:border-yellow-500 transition-colors">
-                            <input type="number" id="input-yellow-m" value="03" min="0" placeholder="MM" class="w-10 sm:w-12 bg-transparent text-slate-900 dark:text-white text-right font-mono-timer py-2 outline-none">
-                            <span class="text-slate-400 dark:text-slate-500 px-1 font-mono-timer font-bold pb-1">:</span>
-                            <input type="number" id="input-yellow-s" value="00" min="0" max="59" placeholder="SS" class="w-10 sm:w-12 bg-transparent text-slate-900 dark:text-white text-left font-mono-timer py-2 outline-none">
-                        </div>
-                    </div>
-
-                    <!-- Config Sonido (Alarma) -->
-                    <div class="flex items-center justify-between group">
-                        <label class="text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-2 text-sm sm:text-base">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM85.66,170.34a8,8,0,0,1,11.31-11.31l31,31A8,8,0,0,1,116.69,201.31Zm42.34,3A11.75,11.75,0,0,1,128,172V76a8,8,0,0,1,16,0v96a12,12,0,0,1-16,1.38Zm53.66-26.65-31-31a8,8,0,0,1,11.31-11.31l31,31a8,8,0,0,1-11.31,11.31Z"></path></svg>
-                            Alarma Sonora:
-                        </label>
-                        <div class="flex items-center bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden border border-slate-300 dark:border-slate-700 focus-within:border-blue-500 transition-colors">
-                            <input type="number" id="input-alarm-m" value="01" min="0" placeholder="MM" class="w-10 sm:w-12 bg-transparent text-slate-900 dark:text-white text-right font-mono-timer py-2 outline-none">
-                            <span class="text-slate-400 dark:text-slate-500 px-1 font-mono-timer font-bold pb-1">:</span>
-                            <input type="number" id="input-alarm-s" value="00" min="0" max="59" placeholder="SS" class="w-10 sm:w-12 bg-transparent text-slate-900 dark:text-white text-left font-mono-timer py-2 outline-none">
-                        </div>
-                    </div>
-
-                    <!-- Config Roja -->
-                    <div class="flex items-center justify-between group">
-                        <label class="text-red-600 dark:text-red-400 font-semibold flex items-center gap-2 text-sm sm:text-base">
-                            <span class="w-3 h-3 flex-shrink-0 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span>
-                            Luz Roja (Fin):
-                        </label>
-                        <div class="flex items-center bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden border border-slate-300 dark:border-slate-700 focus-within:border-red-500 transition-colors">
-                            <input type="number" id="input-red-m" value="00" min="0" placeholder="MM" class="w-10 sm:w-12 bg-transparent text-slate-900 dark:text-white text-right font-mono-timer py-2 outline-none">
-                            <span class="text-slate-400 dark:text-slate-500 px-1 font-mono-timer font-bold pb-1">:</span>
-                            <input type="number" id="input-red-s" value="00" min="0" max="59" placeholder="SS" class="w-10 sm:w-12 bg-transparent text-slate-900 dark:text-white text-left font-mono-timer py-2 outline-none">
-                        </div>
-                    </div>
+            <div class="my-6 z-10 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16">
+                
+                <!-- SEMÁFORO INDUSTRIAL VERTICAL REALISTA GRANDE -->
+                <div class="flex flex-col items-center bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-[6px] border-slate-700 rounded-[2.5rem] p-5 md:p-6 shadow-[0_25px_60px_rgba(0,0,0,0.85)] space-y-4 shrink-0 relative ring-4 ring-slate-600/50">
+                    <div class="absolute -top-4 w-16 h-3 bg-slate-600 rounded-full border border-slate-500 shadow-sm"></div>
                     
-                    <p class="text-xs text-slate-500 mt-4 text-center">Formato: MM : SS (Cuenta Regresiva)</p>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-1 border-b border-slate-800 pb-2 w-full text-center">Semáforo Pro</span>
+                    
+                    <!-- LUZ ROJA -->
+                    <div class="relative flex flex-col items-center">
+                        <div class="absolute -top-3 w-28 md:w-32 h-6 bg-slate-800 border-t border-x border-slate-600 rounded-t-2xl z-20 pointer-events-none shadow-md"></div>
+                        <div id="lightRed" class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-slate-900/90 border-[6px] border-slate-700 transition-all duration-300 flex items-center justify-center shadow-[inset_0_8px_16px_rgba(0,0,0,0.9)] relative overflow-hidden z-10" title="Crítico">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none"></div>
+                            <div id="glowRedInner" class="w-9 h-9 rounded-full bg-slate-950/60 transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- LUZ AMARILLA -->
+                    <div class="relative flex flex-col items-center">
+                        <div class="absolute -top-3 w-28 md:w-32 h-6 bg-slate-800 border-t border-x border-slate-600 rounded-t-2xl z-20 pointer-events-none shadow-md"></div>
+                        <div id="lightYellow" class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-slate-900/90 border-[6px] border-slate-700 transition-all duration-300 flex items-center justify-center shadow-[inset_0_8px_16px_rgba(0,0,0,0.9)] relative overflow-hidden z-10" title="Atención">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none"></div>
+                            <div id="glowYellowInner" class="w-9 h-9 rounded-full bg-slate-950/60 transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- LUZ VERDE -->
+                    <div class="relative flex flex-col items-center">
+                        <div class="absolute -top-3 w-28 md:w-32 h-6 bg-slate-800 border-t border-x border-slate-600 rounded-t-2xl z-20 pointer-events-none shadow-md"></div>
+                        <div id="lightGreen" class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-slate-900/90 border-[6px] border-slate-700 transition-all duration-300 flex items-center justify-center shadow-[inset_0_8px_16px_rgba(0,0,0,0.9)] relative overflow-hidden z-10" title="Seguro">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none"></div>
+                            <div id="glowGreenInner" class="w-9 h-9 rounded-full bg-slate-950/60 transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <div class="absolute -bottom-4 w-16 h-3 bg-slate-600 rounded-full border border-slate-500 shadow-sm"></div>
+                </div>
+
+                <!-- CONTADOR DE TIEMPO + BOTONES MINIMALISTAS CUANDO ESTÁ ACTIVO -->
+                <div class="flex flex-col items-center justify-center">
+                    <div id="timerDisplay" class="text-7xl md:text-8xl font-extrabold tracking-tighter font-mono drop-shadow-md">
+                        05:00
+                    </div>
+                    <div id="subTimerMessage" class="mt-2 text-sm font-medium text-center">
+                        Listo para comenzar la presentación
+                    </div>
+
+                    <!-- BARRA DE PROGRESO -->
+                    <div id="progressBarContainer" class="w-full max-w-xs md:max-w-sm rounded-full h-2.5 mt-4 border overflow-hidden">
+                        <div id="progressBar" class="bg-gradient-to-r from-indigo-500 to-violet-500 h-2.5 rounded-full transition-all duration-300" style="width: 100%"></div>
+                    </div>
+
+                    <!-- BOTONES MINIMALISTAS BAJO EL RELOJ (VISIBLE SOLO AL INICIAR) -->
+                    <div id="minimalistControls" class="hidden items-center space-x-2 mt-5 bg-slate-950/40 p-1.5 rounded-xl border border-slate-800/80 backdrop-blur-sm transition-all">
+                        <button onclick="pauseTimer()" id="minBtnPause" class="bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700/60 transition flex items-center space-x-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span id="minPauseText">Pausar</span>
+                        </button>
+                        <button onclick="resetTimer()" class="bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700/60 transition flex items-center space-x-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            <span>Reiniciar</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="footerAlarms" class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t text-xs z-10">
+                <div class="alarm-badge flex items-center space-x-2 p-2.5 rounded-xl border">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    <span>Aviso 50% (Doble tono)</span>
+                </div>
+                <div class="alarm-badge flex items-center space-x-2 p-2.5 rounded-xl border">
+                    <span class="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
+                    <span>Últimos 5s (Alarma sonora tic-tac)</span>
+                </div>
+                <div class="alarm-badge flex items-center space-x-2 p-2.5 rounded-xl border">
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                    <span>Tiempo Extra (Conteo Negativo)</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="customConfigModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div id="modalContentBox" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h3 class="text-base font-bold text-slate-100 flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
+                    <span>Configuración Personalizada</span>
+                </h3>
+                <button onclick="closeCustomConfig()" class="text-slate-400 hover:text-slate-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Título de la Presentación / Actividad</label>
+                    <input type="text" id="modalTitleInput" value="Pitch de Proyecto Principal" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Minutos</label>
+                        <input type="number" id="modalMinsInput" min="0" max="300" value="5" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Segundos</label>
+                        <input type="number" id="modalSecsInput" min="0" max="59" value="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2 pt-2">
+                    <input type="checkbox" id="modalHalfwayCheck" checked class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-indigo-600 focus:ring-indigo-500">
+                    <label for="modalHalfwayCheck" class="text-xs text-slate-300">Activar aviso sonoro a mitad del tiempo (50%)</label>
                 </div>
             </div>
 
-            <!-- Botones de Control -->
-            <div class="grid grid-cols-2 gap-4">
-                <!-- Play / Pause Button -->
-                <button id="btn-toggle" class="col-span-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all active:scale-95 flex items-center justify-center gap-2 text-lg">
-                    <svg id="icon-play" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65A16,16,0,0,1,64,216.13V39.87a16,16,0,0,1,24.32-13.52L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path></svg>
-                    <svg id="icon-pause" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48V208a16,16,0,0,1-16,16H160a16,16,0,0,1-16-16V48a16,16,0,0,1,16-16h40A16,16,0,0,1,216,48ZM96,32H56A16,16,0,0,0,40,48V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V48A16,16,0,0,0,96,32Z"></path></svg>
-                    <span id="text-toggle">Iniciar</span>
-                </button>
-                
-                <!-- Reset Button -->
-                <button id="btn-reset" class="col-span-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-semibold py-3 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M197.65,197.65a96,96,0,1,1,0-135.3L184,76v40h40V76l-12.68-12.69A111.89,111.89,0,1,0,212,128a8,8,0,0,1,16,0A127.88,127.88,0,0,1,197.65,197.65Z"></path></svg>
-                    Reiniciar
-                </button>
+            <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-800">
+                <button onclick="closeCustomConfig()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-4 py-2 rounded-xl text-xs transition">Cancelar</button>
+                <button onclick="saveAndStartCustom()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-xl text-xs transition shadow-lg shadow-indigo-600/30">Guardar e Iniciar</button>
             </div>
-
         </div>
     </div>
 
     <script>
-        // DOM Elements
-        const timerDisplay = document.getElementById('timer-display');
-        const lightGreen = document.getElementById('light-green');
-        const lightYellow = document.getElementById('light-yellow');
-        const lightRed = document.getElementById('light-red');
-        
-        const inputGreenM = document.getElementById('input-green-m');
-        const inputGreenS = document.getElementById('input-green-s');
-        const inputYellowM = document.getElementById('input-yellow-m');
-        const inputYellowS = document.getElementById('input-yellow-s');
-        const inputAlarmM = document.getElementById('input-alarm-m');
-        const inputAlarmS = document.getElementById('input-alarm-s');
-        const inputRedM = document.getElementById('input-red-m');
-        const inputRedS = document.getElementById('input-red-s');
-        
-        const btnToggle = document.getElementById('btn-toggle');
-        const btnReset = document.getElementById('btn-reset');
-        const iconPlay = document.getElementById('icon-play');
-        const iconPause = document.getElementById('icon-pause');
-        const textToggle = document.getElementById('text-toggle');
-        const btnFullscreen = document.getElementById('fullscreen-btn');
-        
-        const themeBtn = document.getElementById('theme-btn');
-        const iconSun = document.getElementById('icon-sun');
-        const iconMoon = document.getElementById('icon-moon');
-
-        const btnSound = document.getElementById('btn-sound');
-        const iconSoundOn = document.getElementById('icon-sound-on');
-        const iconSoundOff = document.getElementById('icon-sound-off');
-        const soundStatusText = document.getElementById('sound-status-text');
-        
-        const configCard = document.getElementById('config-card');
-        const presetsContainer = document.getElementById('presets-container');
-        const inputsGroup = document.getElementById('inputs-group');
-
-        // State variables
-        let isRunning = false;
-        let startTime = 0;
-        let totalElapsedMs = 0;
+        let audioCtx = null;
+        let totalSeconds = 300;
+        let remainingSeconds = 300;
+        let isOvertime = false;
+        let overtimeSeconds = 0;
         let timerInterval = null;
-        let isSoundEnabled = true;
-        let alarmHasPlayed = false; 
-        let lastBeepedSecond = null; 
-        let wakeLock = null; 
+        let isRunning = false;
+        let isPaused = false;
+        let halfwayTriggered = false;
+        let lastFiveSecTriggered = {};
+        let isDarkMode = true;
+        let sidebarMinimized = false;
 
-        // Configuration (in seconds remaining)
-        let cfgGreen = 600;  
-        let cfgYellow = 180; 
-        let cfgAlarm = 60;   
-        let cfgRed = 0;      
-
-        // Synthesizer setup (Tone.js)
-        const synth = new Tone.FMSynth({
-            harmonicity: 2,
-            modulationIndex: 1,
-            oscillator: { type: "sine" },
-            envelope: {
-                attack: 0.01,
-                decay: 0.2,
-                sustain: 0.1,
-                release: 0.5
-            },
-            modulation: { type: "square" },
-            modulationEnvelope: {
-                attack: 0.01,
-                decay: 0.1,
-                sustain: 0,
-                release: 0.1
+        function detectDeviceAndAdapt() {
+            const width = window.innerWidth;
+            if (isRunning && width < 1024 && !sidebarMinimized) {
+                minimizeSidebar();
             }
-        }).toDestination();
-        
-        synth.volume.value = -5;
+        }
 
-        // Wake Lock functions with strict permission policy check
-        async function requestWakeLock() {
-            if ('wakeLock' in navigator) {
-                try {
-                    // Check if document policy permits wake-lock
-                    if (document.featurePolicy && document.featurePolicy.allowsFeature && !document.featurePolicy.allowsFeature('screen-wake-lock')) {
-                        console.warn('Wake Lock feature policy disabled.');
-                        return;
+        window.addEventListener('resize', () => {
+            detectDeviceAndAdapt();
+        });
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            const appBody = document.getElementById('appBody');
+            const headerEl = document.getElementById('headerEl');
+            const cardPresets = document.getElementById('cardPresets');
+            const cardControls = document.getElementById('cardControls');
+            const cardMain = document.getElementById('cardMain');
+            const footerAlarms = document.getElementById('footerAlarms');
+            const modalContentBox = document.getElementById('modalContentBox');
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const audioStatusBtn = document.getElementById('audioStatusBtn');
+            const themeText = document.getElementById('themeText');
+            const themeIcon = document.getElementById('themeIcon');
+            const btnPause = document.getElementById('btnPause');
+            const btnReset = document.getElementById('btnReset');
+            const presetBtns = document.querySelectorAll('.preset-btn');
+            const presetTitles = document.querySelectorAll('.preset-title');
+            const alarmBadges = document.querySelectorAll('.alarm-badge');
+            const progressBarContainer = document.getElementById('progressBarContainer');
+            const modalTitleInput = document.getElementById('modalTitleInput');
+            const modalMinsInput = document.getElementById('modalMinsInput');
+            const modalSecsInput = document.getElementById('modalSecsInput');
+            const restoreSidebarBtn = document.getElementById('restoreSidebarBtn');
+            const minimalistControls = document.getElementById('minimalistControls');
+
+            if (isDarkMode) {
+                appBody.className = "h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300";
+                headerEl.className = "bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300";
+                cardPresets.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md transition-colors duration-300";
+                cardControls.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md space-y-4 transition-colors duration-300";
+                cardMain.className = "bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md relative overflow-hidden transition-colors duration-300 " + (sidebarMinimized ? "lg:col-span-3" : "lg:col-span-2");
+                footerAlarms.className = "grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t border-slate-800/80 text-xs text-slate-400 z-10";
+                modalContentBox.className = "bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 transition-colors duration-300";
+                themeToggleBtn.className = "flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
+                audioStatusBtn.className = "flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
+                btnPause.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 px-3 rounded-xl border border-slate-700 transition text-xs flex items-center justify-center space-x-1.5";
+                btnReset.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 px-3 rounded-xl border border-slate-700 transition text-xs flex items-center justify-center space-x-1.5";
+                if(restoreSidebarBtn) restoreSidebarBtn.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1.5";
+                progressBarContainer.className = "w-full max-w-xs md:max-w-sm bg-slate-950 rounded-full h-2.5 mt-4 border border-slate-800 overflow-hidden";
+                minimalistControls.className = "flex items-center space-x-2 mt-5 bg-slate-950/40 p-1.5 rounded-xl border border-slate-800/80 backdrop-blur-sm transition-all";
+                modalTitleInput.className = "w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition";
+                modalMinsInput.className = "w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition";
+                modalSecsInput.className = "w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition";
+
+                presetBtns.forEach(btn => {
+                    btn.className = "preset-btn text-left bg-slate-950 hover:bg-slate-800/80 border border-slate-800 p-2.5 rounded-xl transition text-xs";
+                });
+                presetTitles.forEach(t => {
+                    t.className = "font-semibold text-slate-200 preset-title";
+                });
+                alarmBadges.forEach(ab => {
+                    ab.className = "alarm-badge flex items-center space-x-2 bg-slate-950/50 p-2.5 rounded-xl border border-slate-800 text-slate-400";
+                });
+
+                themeText.textContent = "Modo Oscuro";
+                themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>`;
+                themeIcon.className = "w-4 h-4 text-amber-400";
+            } else {
+                appBody.className = "h-full bg-slate-100 text-slate-900 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300";
+                headerEl.className = "bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300";
+                cardPresets.className = "bg-white border border-slate-200 rounded-2xl p-5 shadow-xl backdrop-blur-md transition-colors duration-300";
+                cardControls.className = "bg-white border border-slate-200 rounded-2xl p-5 shadow-xl backdrop-blur-md space-y-4 transition-colors duration-300";
+                cardMain.className = "bg-white border border-slate-200 rounded-2xl p-6 shadow-xl backdrop-blur-md relative overflow-hidden transition-colors duration-300 " + (sidebarMinimized ? "lg:col-span-3" : "lg:col-span-2");
+                footerAlarms.className = "grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t border-slate-200 text-xs text-slate-600 z-10";
+                modalContentBox.className = "bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 transition-colors duration-300";
+                themeToggleBtn.className = "flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
+                audioStatusBtn.className = "flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
+                btnPause.className = "bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2.5 px-3 rounded-xl border border-slate-300 transition text-xs flex items-center justify-center space-x-1.5";
+                btnReset.className = "bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2.5 px-3 rounded-xl border border-slate-300 transition text-xs flex items-center justify-center space-x-1.5";
+                if(restoreSidebarBtn) restoreSidebarBtn.className = "bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-300 transition flex items-center space-x-1.5";
+                progressBarContainer.className = "w-full max-w-xs md:max-w-sm bg-slate-200 rounded-full h-2.5 mt-4 border border-slate-300 overflow-hidden";
+                minimalistControls.className = "flex items-center space-x-2 mt-5 bg-slate-200/60 p-1.5 rounded-xl border border-slate-300 backdrop-blur-sm transition-all";
+                modalTitleInput.className = "w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 transition";
+                modalMinsInput.className = "w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 transition";
+                modalSecsInput.className = "w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 transition";
+
+                presetBtns.forEach(btn => {
+                    btn.className = "preset-btn text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 p-2.5 rounded-xl transition text-xs";
+                });
+                presetTitles.forEach(t => {
+                    t.className = "font-semibold text-slate-800 preset-title";
+                });
+                alarmBadges.forEach(ab => {
+                    ab.className = "alarm-badge flex items-center space-x-2 bg-slate-100 p-2.5 rounded-xl border border-slate-200 text-slate-600";
+                });
+
+                themeText.textContent = "Modo Claro";
+                themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>`;
+                themeIcon.className = "w-4 h-4 text-indigo-600";
+            }
+            updateDisplay();
+        }
+
+        function minimizeSidebar() {
+            sidebarMinimized = true;
+            const sidebar = document.getElementById('sidebarSection');
+            const cardMain = document.getElementById('cardMain');
+            const restoreBtn = document.getElementById('restoreSidebarBtn');
+            const minimalistControls = document.getElementById('minimalistControls');
+
+            sidebar.classList.add('hidden');
+            cardMain.className = cardMain.className.replace('lg:col-span-2', 'lg:col-span-3');
+            restoreBtn.classList.remove('hidden');
+            if (isRunning) {
+                minimalistControls.classList.remove('hidden');
+                minimalistControls.classList.add('flex');
+            }
+        }
+
+        function toggleSidebarExpansion() {
+            sidebarMinimized = false;
+            const sidebar = document.getElementById('sidebarSection');
+            const cardMain = document.getElementById('cardMain');
+            const restoreBtn = document.getElementById('restoreSidebarBtn');
+            const minimalistControls = document.getElementById('minimalistControls');
+
+            sidebar.classList.remove('hidden');
+            cardMain.className = cardMain.className.replace('lg:col-span-3', 'lg:col-span-2');
+            restoreBtn.classList.add('hidden');
+            minimalistControls.classList.add('hidden');
+            minimalistControls.classList.remove('flex');
+        }
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playBeep(type) {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'halfway') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, now); // D5
+                    osc.frequency.setValueAtTime(880, now + 0.15); // A5
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'countdown_five') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(750, now);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'end') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(330, now + 0.2);
+                    osc.frequency.setValueAtTime(220, now + 0.4);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+                    osc.start(now);
+                    osc.stop(now + 0.8);
+                }
+            } catch (e) {
+                console.log("Audio not initialized yet or restricted.", e);
+            }
+        }
+
+        function toggleAudioEngine() {
+            initAudio();
+            const btnText = document.getElementById('audioStatusText');
+            const indicator = document.getElementById('audioIndicator');
+            if (audioCtx && audioCtx.state === 'running') {
+                btnText.textContent = "Audio Activo";
+                indicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                playBeep('halfway');
+            }
+        }
+
+        function openCustomConfig() {
+            const currentTitle = document.getElementById('presTitle').value;
+            const currentMins = document.getElementById('presMinutes').value;
+            const currentSecs = document.getElementById('presSeconds').value;
+            const halfwayChecked = document.getElementById('halfwayAlert').checked;
+
+            document.getElementById('modalTitleInput').value = currentTitle;
+            document.getElementById('modalMinsInput').value = currentMins;
+            document.getElementById('modalSecsInput').value = currentSecs;
+            document.getElementById('modalHalfwayCheck').checked = halfwayChecked;
+
+            document.getElementById('customConfigModal').classList.remove('hidden');
+        }
+
+        function closeCustomConfig() {
+            document.getElementById('customConfigModal').classList.add('hidden');
+        }
+
+        function saveAndStartCustom() {
+            const title = document.getElementById('modalTitleInput').value || 'Presentación Personalizada';
+            const mins = parseInt(document.getElementById('modalMinsInput').value) || 0;
+            const secs = parseInt(document.getElementById('modalSecsInput').value) || 0;
+            const halfway = document.getElementById('modalHalfwayCheck').checked;
+
+            document.getElementById('presTitle').value = title;
+            document.getElementById('presMinutes').value = mins;
+            document.getElementById('presSeconds').value = secs;
+            document.getElementById('halfwayAlert').checked = halfway;
+
+            closeCustomConfig();
+            startTimer();
+        }
+
+        function loadPreset(title, mins, secs) {
+            const titleInput = document.getElementById('presTitle');
+            const minsInput = document.getElementById('presMinutes');
+            const secsInput = document.getElementById('presSeconds');
+
+            if (titleInput) titleInput.value = title;
+            if (minsInput) minsInput.value = mins;
+            if (secsInput) secsInput.value = secs;
+
+            startTimer();
+        }
+
+        function startTimer() {
+            initAudio();
+            clearInterval(timerInterval);
+
+            const titleInput = document.getElementById('presTitle');
+            const minsInput = document.getElementById('presMinutes');
+            const secsInput = document.getElementById('presSeconds');
+
+            const title = titleInput ? titleInput.value : "Presentación";
+            const mins = minsInput ? (parseInt(minsInput.value) || 0) : 0;
+            const secs = secsInput ? (parseInt(secsInput.value) || 0) : 0;
+
+            totalSeconds = (mins * 60) + secs;
+            if (totalSeconds <= 0) totalSeconds = 30;
+            remainingSeconds = totalSeconds;
+            isOvertime = false;
+            overtimeSeconds = 0;
+            halfwayTriggered = false;
+            lastFiveSecTriggered = {};
+
+            document.getElementById('activeTitleDisplay').textContent = title;
+            document.getElementById('statusBadge').textContent = "En Curso";
+            document.getElementById('statusBadge').className = "text-xs font-medium px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+
+            minimizeSidebar();
+
+            isRunning = true;
+            isPaused = false;
+
+            updateDisplay();
+
+            timerInterval = setInterval(() => {
+                if (!isPaused && isRunning) {
+                    if (remainingSeconds > 0) {
+                        remainingSeconds--;
+                        checkAlarms();
+                        updateDisplay();
+                    } else {
+                        if (!isOvertime) {
+                            isOvertime = true;
+                            overtimeSeconds = 0;
+                            playBeep('end');
+                            document.getElementById('statusBadge').textContent = "¡Tiempo Extra!";
+                            document.getElementById('statusBadge').className = "text-xs font-medium px-2.5 py-1 rounded-lg bg-rose-500/30 text-rose-400 border border-rose-500/50 animate-pulse";
+                            showNotification("¡Tiempo concluido! Iniciando conteo negativo...");
+                        } else {
+                            overtimeSeconds++;
+                            if (overtimeSeconds % 5 === 0) {
+                                playBeep('countdown_five');
+                            }
+                        }
+                        updateDisplay();
                     }
-                    wakeLock = await navigator.wakeLock.request('screen');
-                } catch (err) {
-                    // Silently catch permission or NotAllowed errors common in iframe/sandboxed previews
-                    console.info(`Wake Lock notice: ${err.name} - ${err.message}`);
-                    wakeLock = null;
                 }
-            }
+            }, 1000);
         }
 
-        function releaseWakeLock() {
-            if (wakeLock !== null) {
-                wakeLock.release()
-                    .then(() => { wakeLock = null; })
-                    .catch(err => console.info(err));
-            }
-        }
-
-        function playAlarm() {
-            if (!isSoundEnabled || alarmHasPlayed) return;
-            if (Tone.context.state !== 'running') {
-                Tone.start();
-            }
-            const now = Tone.now();
-            synth.triggerAttackRelease("C5", "16n", now);
-            synth.triggerAttackRelease("E5", "16n", now + 0.2);
-            alarmHasPlayed = true;
-        }
-
-        function playCountdownBeep() {
-            if (!isSoundEnabled) return;
-            if (Tone.context.state !== 'running') Tone.start();
-            synth.triggerAttackRelease("G5", "32n", Tone.now());
-        }
-
-        function playEndBeep() {
-            if (!isSoundEnabled) return;
-            if (Tone.context.state !== 'running') Tone.start();
-            synth.triggerAttackRelease("C5", "8n", Tone.now());
-        }
-
-        function toggleSound() {
-            isSoundEnabled = !isSoundEnabled;
-            if (isSoundEnabled) {
-                Tone.start();
-                iconSoundOff.classList.add('hidden');
-                iconSoundOn.classList.remove('hidden');
-                soundStatusText.textContent = 'Sonido ON';
-                soundStatusText.className = 'text-sm text-blue-600 dark:text-blue-400 font-semibold uppercase tracking-wider';
-                btnSound.className = 'text-blue-600 dark:text-blue-400 hover:text-slate-900 dark:hover:text-white transition-colors focus:outline-none';
-                
-                const now = Tone.now();
-                synth.triggerAttackRelease("G5", "32n", now);
-            } else {
-                iconSoundOn.classList.add('hidden');
-                iconSoundOff.classList.remove('hidden');
-                soundStatusText.textContent = 'Silencio';
-                soundStatusText.className = 'text-sm text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider';
-                btnSound.className = 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors focus:outline-none';
-            }
-        }
-
-        function updateConfig() {
-            const getSeconds = (inputM, inputS) => {
-                const m = parseInt(inputM.value) || 0;
-                const s = parseInt(inputS.value) || 0;
-                return (m * 60) + s;
-            };
-
-            cfgGreen = getSeconds(inputGreenM, inputGreenS);
-            cfgYellow = getSeconds(inputYellowM, inputYellowS);
-            cfgAlarm = getSeconds(inputAlarmM, inputAlarmS);
-            cfgRed = getSeconds(inputRedM, inputRedS);
-        }
-
-        function formatTime(ms) {
-            const isNegative = ms < 0;
-            const absMs = Math.abs(ms);
-            const totalSeconds = Math.floor(absMs / 1000);
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-            
-            const paddedMinutes = String(minutes).padStart(2, '0');
-            const paddedSeconds = String(seconds).padStart(2, '0');
-            
-            return `${isNegative ? '-' : ''}${paddedMinutes}:${paddedSeconds}`;
-        }
-
-        function turnOffLights() {
-            lightGreen.classList.remove('glow-green');
-            lightYellow.classList.remove('glow-yellow');
-            lightRed.classList.remove('glow-red', 'animate-pulse');
-        }
-
-        function updateLights(remainingSeconds) {
-            turnOffLights();
-            if (remainingSeconds <= cfgRed) {
-                lightRed.classList.add('glow-red');
-                if(remainingSeconds <= cfgRed - 5) {
-                    lightRed.classList.add('animate-pulse');
-                }
-            } else if (remainingSeconds <= cfgYellow) {
-                lightYellow.classList.add('glow-yellow');
-            } else {
-                lightGreen.classList.add('glow-green');
-            }
-        }
-
-        function tick() {
-            const now = Date.now();
-            totalElapsedMs = now - startTime;
-            const remainingMs = (cfgGreen * 1000) - totalElapsedMs;
-            
-            timerDisplay.textContent = formatTime(remainingMs);
-            const remainingSeconds = Math.ceil(remainingMs / 1000); 
-            updateLights(remainingSeconds);
-            
-            if (remainingSeconds <= cfgAlarm && remainingSeconds > cfgAlarm - 1) {
-                playAlarm();
+        function checkAlarms() {
+            const halfwayPoint = Math.floor(totalSeconds / 2);
+            const halfwayEl = document.getElementById('halfwayAlert');
+            const halfwayEnabled = halfwayEl ? halfwayEl.checked : true;
+            if (halfwayEnabled && remainingSeconds === halfwayPoint && totalSeconds > 20 && !halfwayTriggered) {
+                halfwayTriggered = true;
+                playBeep('halfway');
+                showNotification("¡Mitad del tiempo alcanzada!");
             }
 
             if (remainingSeconds <= 5 && remainingSeconds > 0) {
-                if (lastBeepedSecond !== remainingSeconds) {
-                    playCountdownBeep();
-                    lastBeepedSecond = remainingSeconds;
+                if (!lastFiveSecTriggered[remainingSeconds]) {
+                    lastFiveSecTriggered[remainingSeconds] = true;
+                    playBeep('countdown_five');
+                    showNotification(`¡Atención! Quedan ${remainingSeconds} segundos`);
                 }
-            } else if (remainingSeconds === 0 && lastBeepedSecond !== 0) {
-                playEndBeep();
-                lastBeepedSecond = 0;
             }
         }
 
-        function toggleTimer() {
-            updateConfig(); 
-            if (isRunning) {
-                clearInterval(timerInterval);
-                isRunning = false;
-                releaseWakeLock();
-                
-                // Restaurar panel de configuración a estado completo
-                presetsContainer.style.maxHeight = "200px";
-                presetsContainer.style.opacity = "1";
-                presetsContainer.style.marginBottom = "1.5rem";
-                presetsContainer.style.paddingBottom = "1.5rem";
-                
-                inputsGroup.style.maxHeight = "400px";
-                inputsGroup.style.opacity = "1";
-                inputsGroup.style.marginTop = "0";
+        function showNotification(msg) {
+            const subMsg = document.getElementById('subTimerMessage');
+            subMsg.textContent = msg;
+            subMsg.className = "mt-2 text-sm text-amber-500 font-bold animate-pulse";
+            setTimeout(() => {
+                if (isRunning) {
+                    subMsg.className = "mt-2 text-sm " + (isDarkMode ? "text-slate-400" : "text-slate-600") + " font-medium";
+                }
+            }, 2500);
+        }
 
-                configCard.classList.remove('scale-95', 'opacity-60', 'p-3');
-                configCard.classList.add('p-6');
-                
-                iconPlay.classList.remove('hidden');
-                iconPause.classList.add('hidden');
-                textToggle.textContent = 'Reanudar';
-                btnToggle.classList.replace('bg-amber-600', 'bg-blue-600');
-                btnToggle.classList.replace('hover:bg-amber-500', 'hover:bg-blue-500');
-                timerDisplay.classList.add('opacity-80');
+        function pauseTimer() {
+            if (!isRunning) return;
+            isPaused = !isPaused;
+            const badge = document.getElementById('statusBadge');
+            const minPauseText = document.getElementById('minPauseText');
+            if (isPaused) {
+                badge.textContent = "Pausado";
+                badge.className = "text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-500 border border-amber-500/30";
+                document.getElementById('subTimerMessage').textContent = "Temporizador en pausa";
+                if(minPauseText) minPauseText.textContent = "Reanudar";
             } else {
-                startTime = Date.now() - totalElapsedMs;
-                timerInterval = setInterval(tick, 100);
-                isRunning = true;
-                requestWakeLock();
-                
-                // Reducir configuración al mínimo absoluto para dar protagonismo total al semáforo
-                presetsContainer.style.maxHeight = "0";
-                presetsContainer.style.opacity = "0";
-                presetsContainer.style.marginBottom = "0";
-                presetsContainer.style.paddingBottom = "0";
-
-                inputsGroup.style.maxHeight = "0";
-                inputsGroup.style.opacity = "0";
-                inputsGroup.style.marginTop = "0";
-
-                configCard.classList.remove('p-6');
-                configCard.classList.add('scale-95', 'opacity-40', 'p-3', 'hover:opacity-90');
-                
-                iconPlay.classList.add('hidden');
-                iconPause.classList.remove('hidden');
-                textToggle.textContent = 'Pausar';
-                btnToggle.classList.replace('bg-blue-600', 'bg-amber-600');
-                btnToggle.classList.replace('hover:bg-blue-500', 'hover:bg-amber-500');
-                timerDisplay.classList.remove('opacity-80');
+                badge.textContent = "En Curso";
+                badge.className = "text-xs font-medium px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-500 border border-emerald-500/30";
+                document.getElementById('subTimerMessage').textContent = "Presentación en curso...";
+                if(minPauseText) minPauseText.textContent = "Pausar";
             }
         }
 
         function resetTimer() {
             clearInterval(timerInterval);
             isRunning = false;
-            totalElapsedMs = 0;
-            alarmHasPlayed = false;
-            lastBeepedSecond = null;
-            releaseWakeLock();
+            isPaused = false;
+            isOvertime = false;
+            overtimeSeconds = 0;
+            const minsInput = document.getElementById('presMinutes');
+            const secsInput = document.getElementById('presSeconds');
+            const mins = minsInput ? (parseInt(minsInput.value) || 0) : 0;
+            const secs = secsInput ? (parseInt(secsInput.value) || 0) : 0;
+            totalSeconds = (mins * 60) + secs;
+            if (totalSeconds <= 0) totalSeconds = 30;
+            remainingSeconds = totalSeconds;
+            updateDisplay();
+            document.getElementById('statusBadge').textContent = "Reiniciado";
+            document.getElementById('statusBadge').className = "text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700";
+            document.getElementById('subTimerMessage').textContent = "Listo para iniciar";
             
-            // Restaurar panel completo
-            presetsContainer.style.maxHeight = "200px";
-            presetsContainer.style.opacity = "1";
-            presetsContainer.style.marginBottom = "1.5rem";
-            presetsContainer.style.paddingBottom = "1.5rem";
-
-            inputsGroup.style.maxHeight = "400px";
-            inputsGroup.style.opacity = "1";
-            inputsGroup.style.marginTop = "0";
-
-            configCard.classList.remove('scale-95', 'opacity-40', 'p-3', 'hover:opacity-90');
-            configCard.classList.add('p-6');
-            
-            updateConfig();
-            timerDisplay.textContent = formatTime(cfgGreen * 1000);
-            turnOffLights();
-            
-            iconPlay.classList.remove('hidden');
-            iconPause.classList.add('hidden');
-            textToggle.textContent = 'Iniciar';
-            btnToggle.classList.replace('bg-amber-600', 'bg-blue-600');
-            btnToggle.classList.replace('hover:bg-amber-500', 'hover:bg-blue-500');
-            timerDisplay.classList.remove('opacity-80');
+            // Hide minimalist controls on reset
+            const minimalistControls = document.getElementById('minimalistControls');
+            minimalistControls.classList.add('hidden');
+            minimalistControls.classList.remove('flex');
+            toggleSidebarExpansion();
         }
 
-        function toggleFullScreen() {
-            const elem = document.documentElement;
-            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-            
-            if (!isFullscreen) {
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen().catch(err => console.warn(err));
-                } else if (elem.webkitRequestFullscreen) {
-                    elem.webkitRequestFullscreen();
-                } else if (elem.mozRequestFullScreen) {
-                    elem.mozRequestFullScreen();
-                } else if (elem.msRequestFullscreen) {
-                    elem.msRequestFullscreen();
-                }
+        function updateDisplay() {
+            let displayStr = "";
+            let m = 0;
+            let s = 0;
+
+            if (!isOvertime) {
+                m = Math.floor(remainingSeconds / 60);
+                s = remainingSeconds % 60;
+                displayStr = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
+                m = Math.floor(overtimeSeconds / 60);
+                s = overtimeSeconds % 60;
+                displayStr = `-${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
             }
-        }
+            document.getElementById('timerDisplay').textContent = displayStr;
 
-        // Theme Toggle Logic
-        function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
-            const isDark = document.documentElement.classList.contains('dark');
+            const percentage = (!isOvertime && totalSeconds > 0) ? (remainingSeconds / totalSeconds) * 100 : 0;
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+
+            const lightGreen = document.getElementById('lightGreen');
+            const lightYellow = document.getElementById('lightYellow');
+            const lightRed = document.getElementById('lightRed');
             
-            if (isDark) {
-                iconSun.classList.remove('hidden');
-                iconMoon.classList.add('hidden');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                iconSun.classList.add('hidden');
-                iconMoon.classList.remove('hidden');
-                localStorage.setItem('theme', 'light');
-            }
-        }
+            const glowGreenInner = document.getElementById('glowGreenInner');
+            const glowYellowInner = document.getElementById('glowYellowInner');
+            const glowRedInner = document.getElementById('glowRedInner');
 
-        // Initialize Theme (Reads User Preference / System Preference automatically)
-        function initTheme() {
-            const storedTheme = localStorage.getItem('theme');
-            if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-                iconSun.classList.remove('hidden');
-                iconMoon.classList.add('hidden');
-            } else {
-                document.documentElement.classList.remove('dark');
-                iconSun.classList.add('hidden');
-                iconMoon.classList.remove('hidden');
-            }
-        }
-        
-        initTheme();
+            const glowBg = document.getElementById('glowBg');
 
-        // Listen to OS-level theme changes if user hasn't set an explicit manual override
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (!localStorage.getItem('theme')) {
-                if (e.matches) {
-                    document.documentElement.classList.add('dark');
-                    iconSun.classList.remove('hidden');
-                    iconMoon.classList.add('hidden');
+            lightGreen.className = "w-24 h-24 md:w-28 md:h-28 rounded-full bg-slate-900/90 border-[6px] border-slate-700 transition-all duration-300 flex items-center justify-center shadow-[inset_0_8px_16px_rgba(0,0,0,0.9)] relative overflow-hidden z-10";
+            lightYellow.className = "w-24 h-24 md:w-28 md:h-28 rounded-full bg-slate-900/90 border-[6px] border-slate-700 transition-all duration-300 flex items-center justify-center shadow-[inset_0_8px_16px_rgba(0,0,0,0.9)] relative overflow-hidden z-10";
+            lightRed.className = "w-24 h-24 md:w-28 md:h-28 rounded-full bg-slate-900/90 border-[6px] border-slate-700 transition-all duration-300 flex items-center justify-center shadow-[inset_0_8px_16px_rgba(0,0,0,0.9)] relative overflow-hidden z-10";
+
+            glowGreenInner.className = "w-9 h-9 rounded-full bg-slate-950/60 transition-all duration-300";
+            glowYellowInner.className = "w-9 h-9 rounded-full bg-slate-950/60 transition-all duration-300";
+            glowRedInner.className = "w-9 h-9 rounded-full bg-slate-950/60 transition-all duration-300";
+
+            if (!isRunning && remainingSeconds === totalSeconds && !isOvertime) {
+                glowBg.className = "absolute -top-24 -right-24 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none transition-all duration-500";
+            } else if (isOvertime) {
+                lightRed.className = "w-24 h-24 md:w-28 md:h-28 rounded-full bg-rose-600 border-[6px] border-rose-300 shadow-[0_0_75px_rgba(225,29,72,1),inset_0_4px_8px_rgba(255,255,255,0.7)] scale-110 transition-all duration-300 animate-ping flex items-center justify-center relative overflow-hidden z-10";
+                glowRedInner.className = "w-16 h-16 rounded-full bg-rose-200 shadow-[0_0_35px_#fecdd3] transition-all duration-300";
+                glowBg.className = "absolute -top-24 -right-24 w-72 h-72 bg-rose-600/30 rounded-full blur-3xl pointer-events-none transition-all duration-300";
+            } else if (percentage > 50) {
+                lightGreen.className = "w-24 h-24 md:w-28 md:h-28 rounded-full bg-emerald-500 border-[6px] border-emerald-300 shadow-[0_0_55px_rgba(16,185,129,0.9),inset_0_4px_8px_rgba(255,255,255,0.7)] scale-105 transition-all duration-300 flex items-center justify-center relative overflow-hidden z-10";
+                glowGreenInner.className = "w-16 h-16 rounded-full bg-emerald-200 shadow-[0_0_25px_#6ee7b7] transition-all duration-300";
+                glowBg.className = "absolute -top-24 -right-24 w-72 h-72 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none transition-all duration-500";
+            } else if (percentage > 10 && percentage <= 50) {
+                lightYellow.className = "w-24 h-24 md:w-28 md:h-28 rounded-full bg-amber-400 border-[6px] border-amber-200 shadow-[0_0_55px_rgba(251,191,36,0.9),inset_0_4px_8px_rgba(255,255,255,0.7)] scale-105 transition-all duration-300 animate-pulse flex items-center justify-center relative overflow-hidden z-10";
+                glowYellowInner.className = "w-16 h-16 rounded-full bg-amber-100 shadow-[0_0_25px_#fde68a] transition-all duration-300";
+                glowBg.className = "absolute -top-24 -right-24 w-72 h-72 bg-amber-500/15 rounded-full blur-3xl pointer-events-none transition-all duration-500";
+            } else {
+                lightRed.className = "w-24 h-24 md:w-28 md:h-28 rounded-full bg-rose-600 border-[6px] border-rose-300 shadow-[0_0_65px_rgba(225,29,72,0.98),inset_0_4px_8px_rgba(255,255,255,0.7)] scale-110 transition-all duration-300 animate-ping flex items-center justify-center relative overflow-hidden z-10";
+                glowRedInner.className = "w-16 h-16 rounded-full bg-rose-200 shadow-[0_0_30px_#fecdd3] transition-all duration-300";
+                glowBg.className = "absolute -top-24 -right-24 w-72 h-72 bg-rose-500/25 rounded-full blur-3xl pointer-events-none transition-all duration-300";
+            }
+
+            const timerEl = document.getElementById('timerDisplay');
+            const subMsg = document.getElementById('subTimerMessage');
+
+            if ((remainingSeconds <= 5 && isRunning && !isOvertime) || isOvertime) {
+                timerEl.className = "text-7xl md:text-8xl font-extrabold tracking-tighter text-rose-600 font-mono drop-shadow-lg animate-pulse";
+            } else {
+                if (isDarkMode) {
+                    timerEl.className = "text-7xl md:text-8xl font-extrabold tracking-tighter text-slate-100 font-mono drop-shadow-md";
+                    if(subMsg && !subMsg.classList.contains('text-amber-500')) subMsg.className = "mt-2 text-sm text-slate-400 font-medium text-center";
                 } else {
-                    document.documentElement.classList.remove('dark');
-                    iconSun.classList.add('hidden');
-                    iconMoon.classList.remove('hidden');
+                    timerEl.className = "text-7xl md:text-8xl font-black tracking-tighter text-slate-900 font-mono drop-shadow-md";
+                    if(subMsg && !subMsg.classList.contains('text-amber-500')) subMsg.className = "mt-2 text-sm text-slate-700 font-medium text-center";
                 }
             }
-        });
+        }
 
-        btnToggle.addEventListener('click', toggleTimer);
-        btnReset.addEventListener('click', resetTimer);
-        btnFullscreen.addEventListener('click', toggleFullScreen);
-        themeBtn.addEventListener('click', toggleTheme);
-        btnSound.addEventListener('click', toggleSound);
-
-        document.addEventListener('visibilitychange', async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible' && isRunning) {
-                requestWakeLock();
-            }
-        });
-
-        const presets = {
-            'test': { g: 60, y: 30, a: 15, r: 0 },         
-            'pitch': { g: 180, y: 60, a: 30, r: 0 },         
-            'short': { g: 300, y: 60, a: 30, r: 0 },         
-            'standard': { g: 600, y: 180, a: 60, r: 0 },     
-            'conference': { g: 900, y: 300, a: 60, r: 0 },    
-            'thesis': { g: 1200, y: 300, a: 60, r: 0 }       
+        window.onload = function() {
+            detectDeviceAndAdapt();
+            updateDisplay();
         };
-
-        function applyPreset(presetId) {
-            const data = presets[presetId];
-            if (!data) return;
-
-            const setInputValues = (msInput, ssInput, totalSeconds) => {
-                const m = Math.floor(totalSeconds / 60);
-                const s = totalSeconds % 60;
-                msInput.value = String(m).padStart(2, '0');
-                ssInput.value = String(s).padStart(2, '0');
-            };
-
-            setInputValues(inputGreenM, inputGreenS, data.g);
-            setInputValues(inputYellowM, inputYellowS, data.y);
-            setInputValues(inputAlarmM, inputAlarmS, data.a);
-            setInputValues(inputRedM, inputRedS, data.r);
-
-            updateConfig();
-
-            if (!isRunning) {
-                timerDisplay.textContent = formatTime(cfgGreen * 1000);
-            }
-        }
-
-        document.querySelectorAll('.preset-btn').forEach(btn => {
-            btn.addEventListener('change', () => {});
-            btn.addEventListener('click', (e) => {
-                applyPreset(e.target.dataset.preset);
-                const originalBg = e.target.className;
-                e.target.classList.add('bg-blue-600', 'border-blue-400');
-                setTimeout(() => {
-                    e.target.className = originalBg;
-                }, 200);
-            });
-        });
-
-        const allInputs = [inputGreenM, inputGreenS, inputYellowM, inputYellowS, inputAlarmM, inputAlarmS, inputRedM, inputRedS];
-        
-        allInputs.forEach(input => {
-            input.addEventListener('input', () => {
-                updateConfig();
-                if (isRunning) {
-                    const remainingMs = (cfgGreen * 1000) - totalElapsedMs;
-                    updateLights(Math.ceil(remainingMs / 1000));
-                    timerDisplay.textContent = formatTime(remainingMs);
-                } else {
-                    timerDisplay.textContent = formatTime(cfgGreen * 1000);
-                    const currentRemainingSecs = cfgGreen - (totalElapsedMs/1000);
-                    if(cfgAlarm < currentRemainingSecs) {
-                        alarmHasPlayed = false;
-                    }
-                }
-            });
-
-            input.addEventListener('blur', () => {
-                if (input.value !== "" && input.value >= 0 && input.value < 10 && input.value.length === 1) {
-                    input.value = "0" + input.value;
-                } else if (input.value === "" || input.value < 0) {
-                    input.value = "00";
-                }
-                if (input.id.endsWith('-s') && input.value > 59) {
-                    input.value = "59";
-                    updateConfig();
-                }
-            });
-        });
-
-        updateConfig();
-        timerDisplay.textContent = formatTime(cfgGreen * 1000);
-        turnOffLights();
     </script>
 </body>
 </html>
