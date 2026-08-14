@@ -26,6 +26,12 @@
             </div>
         </div>
         <div class="flex items-center space-x-2">
+            <button onclick="toggleFullscreen()" id="fullscreenBtn" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200" title="Pantalla Completa">
+                <svg id="fullscreenIcon" class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                </svg>
+                <span id="fullscreenText" class="hidden sm:inline">Pantalla Completa</span>
+            </button>
             <button onclick="toggleTheme()" id="themeToggleBtn" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200" title="Cambiar Tema Oscuro/Claro">
                 <svg id="themeIcon" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
@@ -293,6 +299,7 @@
             const cardMain = document.getElementById('cardMain');
             const footerAlarms = document.getElementById('footerAlarms');
             const modalContentBox = document.getElementById('modalContentBox');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
             const themeToggleBtn = document.getElementById('themeToggleBtn');
             const audioStatusBtn = document.getElementById('audioStatusBtn');
             const themeText = document.getElementById('themeText');
@@ -317,6 +324,7 @@
                 cardMain.className = "bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md relative overflow-hidden transition-colors duration-300 " + (sidebarMinimized ? "lg:col-span-3" : "lg:col-span-2");
                 footerAlarms.className = "grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t border-slate-800/80 text-xs text-slate-400 z-10";
                 modalContentBox.className = "bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 transition-colors duration-300";
+                fullscreenBtn.className = "flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
                 themeToggleBtn.className = "flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
                 audioStatusBtn.className = "flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
                 btnPause.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 px-3 rounded-xl border border-slate-700 transition text-xs flex items-center justify-center space-x-1.5";
@@ -349,6 +357,7 @@
                 cardMain.className = "bg-white border border-slate-200 rounded-2xl p-6 shadow-xl backdrop-blur-md relative overflow-hidden transition-colors duration-300 " + (sidebarMinimized ? "lg:col-span-3" : "lg:col-span-2");
                 footerAlarms.className = "grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t border-slate-200 text-xs text-slate-600 z-10";
                 modalContentBox.className = "bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 transition-colors duration-300";
+                fullscreenBtn.className = "flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
                 themeToggleBtn.className = "flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
                 audioStatusBtn.className = "flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
                 btnPause.className = "bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2.5 px-3 rounded-xl border border-slate-300 transition text-xs flex items-center justify-center space-x-1.5";
@@ -375,6 +384,18 @@
                 themeIcon.className = "w-4 h-4 text-indigo-600";
             }
             updateDisplay();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("Error attempting to enable fullscreen:", err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
         }
 
         function minimizeSidebar() {
