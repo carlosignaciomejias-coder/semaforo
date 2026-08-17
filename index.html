@@ -26,6 +26,12 @@
             </div>
         </div>
         <div class="flex items-center space-x-1 sm:space-x-2">
+            <button onclick="togglePiP()" id="pipBtn" class="hidden sm:flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200" title="Ventana Flotante (PiP)">
+                <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                <span>Ventana Flotante</span>
+            </button>
             <button onclick="toggleFullscreen()" id="fullscreenBtn" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200" title="Pantalla Completa">
                 <svg id="fullscreenIcon" class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
@@ -278,6 +284,7 @@
         let lastFiveSecTriggered = {};
         let isDarkMode = true;
         let sidebarMinimized = false;
+        let pipWindow = null;
 
         function detectDeviceAndAdapt() {
             const width = window.innerWidth;
@@ -289,6 +296,77 @@
         window.addEventListener('resize', () => {
             detectDeviceAndAdapt();
         });
+
+        async function togglePiP() {
+            if (!('documentPictureInPicture' in window)) {
+                alert("Tu navegador no soporta la API de Ventana Flotante (Document Picture-in-Picture). Asegúrate de usar Chrome o Edge actualizado.");
+                return;
+            }
+
+            if (pipWindow) {
+                pipWindow.close();
+                pipWindow = null;
+                return;
+            }
+
+            try {
+                // Abrir ventana flotante compacta
+                pipWindow = await window.documentPictureInPicture.requestWindow({
+                    width: 340,
+                    height: 480
+                });
+
+                // Copiar estilos de la página principal a la ventana flotante
+                [...document.styleSheets].forEach((styleSheet) => {
+                    try {
+                        const cssRules = [...styleSheet.cssRules].map((rule) => rule.cssText).join('');
+                        const styleEl = pipWindow.document.createElement('style');
+                        styleEl.textContent = cssRules;
+                        pipWindow.document.head.appendChild(styleEl);
+                    } catch (e) {
+                        const linkEl = pipWindow.document.createElement('link');
+                        linkEl.rel = 'stylesheet';
+                        linkEl.href = styleSheet.href;
+                        pipWindow.document.head.appendChild(linkEl);
+                    }
+                });
+
+                // Cargar Tailwind en la ventana PiP
+                const twScript = pipWindow.document.createElement('script');
+                twScript.src = "https://cdn.tailwindcss.com";
+                pipWindow.document.head.appendChild(twScript);
+
+                // Crear contenedor en la ventana PiP
+                const container = pipWindow.document.createElement('div');
+                container.id = 'pipContainer';
+                container.className = isDarkMode ? "h-full bg-slate-950 text-slate-100 p-4 flex flex-col items-center justify-center select-none" : "h-full bg-slate-100 text-slate-900 p-4 flex flex-col items-center justify-center select-none";
+                
+                container.innerHTML = `
+                    <div class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-2 truncate max-w-[280px]" id="pipTitle">${document.getElementById('activeTitleDisplay').textContent}</div>
+                    <div id="pipTimer" class="text-5xl font-extrabold font-mono mb-4">05:00</div>
+                    <div class="flex space-x-6 items-center scale-90">
+                        <!-- Semáforo mini en PiP -->
+                        <div class="flex flex-col bg-slate-900 border-4 border-slate-700 rounded-2xl p-2 space-y-2 shadow-xl">
+                            <div id="pipRed" class="w-12 h-12 rounded-full bg-slate-900 border-2 border-slate-700"></div>
+                            <div id="pipYellow" class="w-12 h-12 rounded-full bg-slate-900 border-2 border-slate-700"></div>
+                            <div id="pipGreen" class="w-12 h-12 rounded-full bg-slate-900 border-2 border-slate-700"></div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex space-x-2">
+                        <button onclick="window.opener.pauseTimer()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700">Pausar/Reanudar</button>
+                    </div>
+                `;
+                pipWindow.document.body.appendChild(container);
+
+                pipWindow.addEventListener('pagehide', () => {
+                    pipWindow = null;
+                });
+
+                updateDisplay();
+            } catch (err) {
+                console.log("Error al abrir ventana flotante:", err);
+            }
+        }
 
         function toggleTheme() {
             isDarkMode = !isDarkMode;
@@ -678,6 +756,14 @@
             }
             document.getElementById('timerDisplay').textContent = displayStr;
 
+            // Actualizar también la ventana flotante PiP si está activa
+            if (pipWindow && !pipWindow.closed) {
+                const pipTimer = pipWindow.document.getElementById('pipTimer');
+                if (pipTimer) pipTimer.textContent = displayStr;
+                const pipTitle = pipWindow.document.getElementById('pipTitle');
+                if (pipTitle) pipTitle.textContent = document.getElementById('activeTitleDisplay').textContent;
+            }
+
             const percentage = (!isOvertime && totalSeconds > 0) ? (remainingSeconds / totalSeconds) * 100 : 0;
             document.getElementById('progressBar').style.width = `${percentage}%`;
 
@@ -699,24 +785,51 @@
             glowYellowInner.className = "w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-slate-950/60 transition-all duration-300";
             glowRedInner.className = "w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-slate-950/60 transition-all duration-300";
 
+            if (pipWindow && !pipWindow.closed) {
+                const pipR = pipWindow.document.getElementById('pipRed');
+                const pipY = pipWindow.document.getElementById('pipYellow');
+                const pipG = pipWindow.document.getElementById('pipGreen');
+                if(pipR && pipY && pipG) {
+                    pipR.className = "w-12 h-12 rounded-full bg-slate-900 border-2 border-slate-700";
+                    pipY.className = "w-12 h-12 rounded-full bg-slate-900 border-2 border-slate-700";
+                    pipG.className = "w-12 h-12 rounded-full bg-slate-900 border-2 border-slate-700";
+                }
+            }
+
             if (!isRunning && remainingSeconds === totalSeconds && !isOvertime) {
                 glowBg.className = "absolute -top-24 -right-24 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none transition-all duration-500";
             } else if (isOvertime) {
                 lightRed.className = "w-18 h-18 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-rose-600 border-[5px] sm:border-[6px] border-rose-300 shadow-[0_0_75px_rgba(225,29,72,1),inset_0_4px_8px_rgba(255,255,255,0.7)] scale-110 transition-all duration-300 animate-ping flex items-center justify-center relative overflow-hidden z-10";
                 glowRedInner.className = "w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-rose-200 shadow-[0_0_35px_#fecdd3] transition-all duration-300";
                 glowBg.className = "absolute -top-24 -right-24 w-72 h-72 bg-rose-600/30 rounded-full blur-3xl pointer-events-none transition-all duration-300";
+                if (pipWindow && !pipWindow.closed) {
+                    const pipR = pipWindow.document.getElementById('pipRed');
+                    if(pipR) pipR.className = "w-12 h-12 rounded-full bg-rose-600 border-2 border-rose-300 shadow-[0_0_20px_#e11d48]";
+                }
             } else if (percentage > 50) {
                 lightGreen.className = "w-18 h-18 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-emerald-500 border-[5px] sm:border-[6px] border-emerald-300 shadow-[0_0_55px_rgba(16,185,129,0.9),inset_0_4px_8px_rgba(255,255,255,0.7)] scale-105 transition-all duration-300 flex items-center justify-center relative overflow-hidden z-10";
                 glowGreenInner.className = "w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-emerald-200 shadow-[0_0_25px_#6ee7b7] transition-all duration-300";
                 glowBg.className = "absolute -top-24 -right-24 w-72 h-72 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none transition-all duration-500";
+                if (pipWindow && !pipWindow.closed) {
+                    const pipG = pipWindow.document.getElementById('pipGreen');
+                    if(pipG) pipG.className = "w-12 h-12 rounded-full bg-emerald-500 border-2 border-emerald-300 shadow-[0_0_20px_#10b981]";
+                }
             } else if (percentage > 10 && percentage <= 50) {
                 lightYellow.className = "w-18 h-18 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-amber-400 border-[5px] sm:border-[6px] border-amber-200 shadow-[0_0_55px_rgba(251,191,36,0.9),inset_0_4px_8px_rgba(255,255,255,0.7)] scale-105 transition-all duration-300 animate-pulse flex items-center justify-center relative overflow-hidden z-10";
                 glowYellowInner.className = "w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-amber-100 shadow-[0_0_25px_#fde68a] transition-all duration-300";
                 glowBg.className = "absolute -top-24 -right-24 w-72 h-72 bg-amber-500/15 rounded-full blur-3xl pointer-events-none transition-all duration-500";
+                if (pipWindow && !pipWindow.closed) {
+                    const pipY = pipWindow.document.getElementById('pipYellow');
+                    if(pipY) pipY.className = "w-12 h-12 rounded-full bg-amber-400 border-2 border-amber-200 shadow-[0_0_20px_#fbbf24]";
+                }
             } else {
                 lightRed.className = "w-18 h-18 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-rose-600 border-[5px] sm:border-[6px] border-rose-300 shadow-[0_0_65px_rgba(225,29,72,0.98),inset_0_4px_8px_rgba(255,255,255,0.7)] scale-110 transition-all duration-300 animate-ping flex items-center justify-center relative overflow-hidden z-10";
                 glowRedInner.className = "w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-rose-200 shadow-[0_0_30px_#fecdd3] transition-all duration-300";
                 glowBg.className = "absolute -top-24 -right-24 w-72 h-72 bg-rose-500/25 rounded-full blur-3xl pointer-events-none transition-all duration-300";
+                if (pipWindow && !pipWindow.closed) {
+                    const pipR = pipWindow.document.getElementById('pipRed');
+                    if(pipR) pipR.className = "w-12 h-12 rounded-full bg-rose-600 border-2 border-rose-300 shadow-[0_0_20px_#e11d48]";
+                }
             }
 
             const timerEl = document.getElementById('timerDisplay');
