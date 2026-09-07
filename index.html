@@ -2,52 +2,56 @@
 <html lang="es" class="h-full dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Semáforo Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body id="appBody" class="h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300">
+<body id="appBody" class="h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300 overflow-x-hidden">
 
-    <header class="bg-slate-900 border-b border-slate-800 px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between shrink-0 transition-colors duration-300" id="headerEl">
-        <div class="flex items-center space-x-2 sm:space-x-3">
+    <header class="bg-slate-900 border-b border-slate-800 px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between shrink-0 transition-colors duration-300 z-30" id="headerEl">
+        <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
             <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
                 <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
             </div>
-            <div>
-                <h1 class="text-sm sm:text-lg font-bold tracking-tight">Semáforo Pro</h1>
-                <p class="hidden sm:block text-[11px] sm:text-xs text-slate-400">Control inteligente con hora de finalización y avisos sonoros</p>
-                <p class="text-[9px] sm:text-[10px] text-indigo-400 font-medium">Por Carlos Mejías • Gemini</p>
+            <div class="min-w-0">
+                <h1 class="text-sm sm:text-lg font-bold tracking-tight truncate">Semáforo Pro</h1>
+                <p class="hidden sm:block text-[11px] sm:text-xs text-slate-400 truncate">Control inteligente con hora de finalización y avisos sonoros</p>
+                <p class="text-[9px] sm:text-[10px] text-indigo-400 font-medium truncate">Por Carlos Mejías • Gemini</p>
             </div>
         </div>
-        <div class="flex items-center space-x-1.5 sm:space-x-2">
-            <!-- Botón Ventana Flotante (PiP) corregido -->
-            <button type="button" onclick="togglePiP()" id="pipBtn" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200" title="Ventana Flotante (PiP)">
+        <div class="flex items-center space-x-1 sm:space-x-2 shrink-0">
+            <!-- Botón Ventana Flotante (PiP) -->
+            <button type="button" onclick="togglePiP()" id="pipBtn" class="flex items-center space-x-1 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200" title="Ventana Flotante (PiP)">
                 <svg class="w-4 h-4 text-violet-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                 </svg>
                 <span class="hidden md:inline">Flotante</span>
             </button>
-            <!-- Botón Pantalla Completa corregido -->
-            <button type="button" onclick="toggleFullscreen()" id="fullscreenBtn" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200" title="Pantalla Completa">
+            <!-- Botón Pantalla Completa con Wake Lock -->
+            <button type="button" onclick="toggleFullscreen()" id="fullscreenBtn" class="flex items-center space-x-1 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200" title="Pantalla Completa y Evitar Bloqueo">
                 <svg id="fullscreenIcon" class="w-4 h-4 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
                 </svg>
                 <span id="fullscreenText" class="hidden md:inline">Completa</span>
             </button>
-            <button type="button" onclick="toggleTheme()" id="themeToggleBtn" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200" title="Cambiar Tema Oscuro/Claro">
+            <!-- Botón Tema -->
+            <button type="button" onclick="toggleTheme()" id="themeToggleBtn" class="flex items-center space-x-1 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200" title="Cambiar Tema Oscuro/Claro">
                 <svg id="themeIcon" class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                 </svg>
                 <span id="themeText" class="hidden md:inline">Tema</span>
             </button>
-            <button type="button" onclick="toggleAudioEngine()" id="audioStatusBtn" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition">
-                <span id="audioIndicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <!-- Botón Audio -->
+            <button type="button" onclick="toggleAudioEngine()" id="audioStatusBtn" class="flex items-center space-x-1 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition" title="Activar/Probar Audio">
+                <span id="audioIndicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
                 <span id="audioStatusText" class="hidden sm:inline">Audio</span>
             </button>
         </div>
@@ -57,11 +61,12 @@
         
         <!-- SIDEBAR DE CONTROLES Y PRESETS -->
         <section id="sidebarSection" class="lg:col-span-1 space-y-4 sm:space-y-6 transition-all duration-300">
+            <!-- Escenarios y Bloques -->
             <div id="cardPresets" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md transition-colors duration-300">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Escenarios y Bloques</h3>
                     <button type="button" onclick="openCustomConfig()" class="flex items-center space-x-1 text-xs text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-2.5 py-1 rounded-lg border border-indigo-500/30 transition">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
@@ -104,11 +109,11 @@
                 </div>
             </div>
 
-            <!-- HORA DE FINALIZACIÓN DIAL -->
+            <!-- Hora de Finalización Dial -->
             <div id="cardTargetTime" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md space-y-3 transition-colors duration-300">
                 <div class="flex items-center justify-between">
                     <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center space-x-1.5">
-                        <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg class="w-4 h-4 text-violet-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span>Finalizar a una Hora</span>
                     </h3>
                 </div>
@@ -120,24 +125,26 @@
                 </div>
             </div>
 
+            <!-- Controles principales -->
             <div id="cardControls" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md space-y-4 transition-colors duration-300">
                 <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Controles del Temporizador</h3>
                 <div class="grid grid-cols-3 gap-2">
                     <button type="button" onclick="pauseTimer()" id="btnPause" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 px-3 rounded-xl border border-slate-700 transition text-xs flex items-center justify-center space-x-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span>Pausar</span>
                     </button>
                     <button type="button" onclick="resetTimer()" id="btnReset" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 px-3 rounded-xl border border-slate-700 transition text-xs flex items-center justify-center space-x-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                         <span>Reiniciar</span>
                     </button>
                     <button type="button" onclick="startTimer()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-3 rounded-xl shadow-lg shadow-indigo-600/30 transition text-xs flex items-center justify-center space-x-1.5 col-span-3 sm:col-span-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span>Iniciar</span>
                     </button>
                 </div>
             </div>
 
+            <!-- Hidden input fields for active state values -->
             <div class="hidden">
                 <input type="text" id="presTitle" value="Pitch de Proyecto Principal">
                 <input type="number" id="presMinutes" value="5">
@@ -149,13 +156,14 @@
         <section id="cardMain" class="lg:col-span-2 flex flex-col justify-between bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-md relative overflow-hidden transition-colors duration-300">
             <div id="glowBg" class="absolute -top-24 -right-24 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none transition-all duration-500"></div>
 
+            <!-- Top bar inside main card -->
             <div class="flex items-center justify-between z-10 flex-wrap gap-2">
                 <div class="flex items-center space-x-3">
                     <button type="button" id="restoreSidebarBtn" onclick="toggleSidebarExpansion()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1.5" title="Mostrar controles">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         <span>Mostrar Menú</span>
                     </button>
-                    <span id="activeTitleDisplay" class="text-xs font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20 truncate max-w-[220px] sm:max-w-md">Pitch de Proyecto Principal</span>
+                    <span id="activeTitleDisplay" class="text-xs font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20 truncate max-w-[200px] sm:max-w-md">Pitch de Proyecto Principal</span>
                 </div>
                 
                 <div id="statusBadge" class="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">
@@ -218,11 +226,11 @@
                     <!-- BOTONES MINIMALISTAS BAJO EL RELOJ (CUANDO ESTÁ ACTIVO) -->
                     <div id="minimalistControls" class="hidden items-center space-x-2 mt-4 bg-slate-950/40 p-1.5 rounded-xl border border-slate-800/80 backdrop-blur-sm transition-all">
                         <button type="button" onclick="pauseTimer()" id="minBtnPause" class="bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700/60 transition flex items-center space-x-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span id="minPauseText">Pausar</span>
                         </button>
                         <button type="button" onclick="resetTimer()" class="bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700/60 transition flex items-center space-x-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                             <span>Reiniciar</span>
                         </button>
                     </div>
@@ -230,6 +238,7 @@
 
             </div>
 
+            <!-- Footer alarms guide -->
             <div id="footerAlarms" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t text-[11px] sm:text-xs z-10">
                 <div class="alarm-badge flex items-center space-x-2 p-2.5 rounded-xl border">
                     <span class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
@@ -252,7 +261,7 @@
         <div id="modalContentBox" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 sm:space-y-5">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3 sm:pb-4">
                 <h3 class="text-sm sm:text-base font-bold text-slate-100 flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
+                    <svg class="w-5 h-5 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
                     <span>Configuración Personalizada</span>
                 </h3>
                 <button type="button" onclick="closeCustomConfig()" class="text-slate-400 hover:text-slate-200">
@@ -304,6 +313,35 @@
         let isDarkMode = true;
         let sidebarMinimized = false;
         let pipWindow = null;
+        let wakeLock = null;
+
+        // Streamline Wake Lock API to prevent screen locking/dimming during presentations
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => {
+                        wakeLock = null;
+                    });
+                } catch (err) {
+                    console.log("Wake Lock error:", err);
+                }
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock !== null) {
+                wakeLock.release().catch(() => {});
+                wakeLock = null;
+            }
+        }
+
+        // Re-acquire wake lock if visibility changes back to visible
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible' && isRunning) {
+                await requestWakeLock();
+            }
+        });
 
         function detectDeviceAndAdapt() {
             const width = window.innerWidth;
@@ -316,10 +354,10 @@
             detectDeviceAndAdapt();
         });
 
-        // Función robusta para Ventana Flotante (Picture-In-Picture)
+        // Robust Document Picture-in-Picture implementation
         async function togglePiP() {
             if (!('documentPictureInPicture' in window)) {
-                alert("Tu navegador no soporta la API de Ventana Flotante. Usa Google Chrome, Microsoft Edge u Opera actualizado.");
+                showToast("Tu navegador no soporta la API de Ventana Flotante. Usa Google Chrome, Microsoft Edge u Opera actualizado.");
                 return;
             }
 
@@ -335,7 +373,7 @@
                     height: 460
                 });
 
-                // Copiar hojas de estilo principales
+                // Copy stylesheets
                 [...document.styleSheets].forEach((styleSheet) => {
                     try {
                         const cssRules = [...styleSheet.cssRules].map((rule) => rule.cssText).join('');
@@ -362,7 +400,7 @@
                     <div class="text-[11px] font-bold uppercase tracking-wider text-indigo-400 truncate max-w-[280px] text-center" id="pipTitle">${document.getElementById('activeTitleDisplay').textContent}</div>
                     
                     <div class="flex items-center justify-center space-x-6 my-2">
-                        <!-- SEMÁFORO FLOTANTE MINI -->
+                        <!-- MINI SEMÁFORO FLOTANTE -->
                         <div class="flex flex-col items-center bg-slate-900 border-2 border-slate-700 rounded-2xl p-2.5 space-y-2 shadow-xl">
                             <div id="pipRed" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 transition-all"></div>
                             <div id="pipYellow" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 transition-all"></div>
@@ -385,8 +423,8 @@
 
                 updateDisplay();
             } catch (err) {
-                console.log("Error al abrir ventana flotante:", err);
-                alert("No se pudo abrir la ventana flotante. Permite ventanas emergentes en tu navegador.");
+                console.log("PiP Error:", err);
+                showToast("No se pudo abrir la ventana flotante.");
             }
         }
 
@@ -420,18 +458,18 @@
             const minimalistControls = document.getElementById('minimalistControls');
 
             if (isDarkMode) {
-                appBody.className = "h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300";
-                headerEl.className = "bg-slate-900 border-b border-slate-800 px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between shrink-0 transition-colors duration-300";
+                appBody.className = "h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300 overflow-x-hidden";
+                headerEl.className = "bg-slate-900 border-b border-slate-800 px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between shrink-0 transition-colors duration-300 z-30";
                 cardPresets.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md transition-colors duration-300";
                 cardTargetTime.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md space-y-3 transition-colors duration-300";
                 cardControls.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md space-y-4 transition-colors duration-300";
                 cardMain.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-md relative overflow-hidden transition-colors duration-300 " + (sidebarMinimized ? "lg:col-span-3" : "lg:col-span-2");
                 footerAlarms.className = "grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-800/80 text-[11px] sm:text-xs text-slate-400 z-10";
                 modalContentBox.className = "bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 transition-colors duration-300";
-                pipBtn.className = "flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
-                fullscreenBtn.className = "flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
-                themeToggleBtn.className = "flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
-                audioStatusBtn.className = "flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
+                pipBtn.className = "flex items-center space-x-1 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
+                fullscreenBtn.className = "flex items-center space-x-1 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
+                themeToggleBtn.className = "flex items-center space-x-1 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
+                audioStatusBtn.className = "flex items-center space-x-1 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-700 transition text-slate-200";
                 btnPause.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 px-3 rounded-xl border border-slate-700 transition text-xs flex items-center justify-center space-x-1.5";
                 btnReset.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 px-3 rounded-xl border border-slate-700 transition text-xs flex items-center justify-center space-x-1.5";
                 if(restoreSidebarBtn) restoreSidebarBtn.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1.5";
@@ -456,18 +494,18 @@
                 themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>`;
                 themeIcon.className = "w-4 h-4 text-amber-400";
             } else {
-                appBody.className = "h-full bg-slate-100 text-slate-900 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300";
-                headerEl.className = "bg-white border-b border-slate-200 px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between shrink-0 transition-colors duration-300";
+                appBody.className = "h-full bg-slate-100 text-slate-900 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300 overflow-x-hidden";
+                headerEl.className = "bg-white border-b border-slate-200 px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between shrink-0 transition-colors duration-300 z-30";
                 cardPresets.className = "bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md transition-colors duration-300";
                 cardTargetTime.className = "bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md space-y-3 transition-colors duration-300";
                 cardControls.className = "bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md space-y-4 transition-colors duration-300";
                 cardMain.className = "bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-md relative overflow-hidden transition-colors duration-300 " + (sidebarMinimized ? "lg:col-span-3" : "lg:col-span-2");
                 footerAlarms.className = "grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-200 text-[11px] sm:text-xs text-slate-600 z-10";
                 modalContentBox.className = "bg-white border border-slate-200 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 transition-colors duration-300";
-                pipBtn.className = "flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
-                fullscreenBtn.className = "flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
-                themeToggleBtn.className = "flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
-                audioStatusBtn.className = "flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
+                pipBtn.className = "flex items-center space-x-1 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
+                fullscreenBtn.className = "flex items-center space-x-1 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
+                themeToggleBtn.className = "flex items-center space-x-1 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
+                audioStatusBtn.className = "flex items-center space-x-1 bg-slate-100 hover:bg-slate-200 text-xs font-medium px-2.5 sm:px-3 py-2 rounded-lg border border-slate-300 transition text-slate-800";
                 btnPause.className = "bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2.5 px-3 rounded-xl border border-slate-300 transition text-xs flex items-center justify-center space-x-1.5";
                 btnReset.className = "bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2.5 px-3 rounded-xl border border-slate-300 transition text-xs flex items-center justify-center space-x-1.5";
                 if(restoreSidebarBtn) restoreSidebarBtn.className = "bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-300 transition flex items-center space-x-1.5";
@@ -495,19 +533,37 @@
             updateDisplay();
         }
 
-        // Función robusta para Pantalla Completa
-        function toggleFullscreen() {
+        // Enhanced Fullscreen with Wake Lock Integration
+        async function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log("Error al activar pantalla completa:", err);
-                    alert("Tu navegador no permite activar pantalla completa automáticamente.");
-                });
+                try {
+                    await document.documentElement.requestFullscreen();
+                    await requestWakeLock();
+                    const fsText = document.getElementById('fullscreenText');
+                    if(fsText) fsText.textContent = "Salir";
+                } catch (err) {
+                    console.log("Fullscreen Error:", err);
+                    showToast("No se pudo activar pantalla completa.");
+                }
             } else {
                 if (document.exitFullscreen) {
-                    document.exitFullscreen().catch(err => console.log(err));
+                    await document.exitFullscreen();
+                    releaseWakeLock();
+                    const fsText = document.getElementById('fullscreenText');
+                    if(fsText) fsText.textContent = "Completa";
                 }
             }
         }
+
+        document.addEventListener('fullscreenchange', () => {
+            const fsText = document.getElementById('fullscreenText');
+            if (!document.fullscreenElement) {
+                releaseWakeLock();
+                if(fsText) fsText.textContent = "Completa";
+            } else {
+                if(fsText) fsText.textContent = "Salir";
+            }
+        });
 
         function minimizeSidebar() {
             sidebarMinimized = true;
@@ -596,7 +652,7 @@
             const indicator = document.getElementById('audioIndicator');
             if (audioCtx && audioCtx.state === 'running') {
                 if(btnText) btnText.textContent = "Audio";
-                if(indicator) indicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                if(indicator) indicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0";
                 playBeep('halfway');
             }
         }
@@ -649,7 +705,7 @@
         function startTargetTimeTimer() {
             const timeInput = document.getElementById('targetTimeInput').value;
             if (!timeInput) {
-                alert("Por favor selecciona una hora de finalización válida.");
+                showToast("Por favor selecciona una hora de finalización válida.");
                 return;
             }
 
@@ -664,7 +720,7 @@
 
             const diffSeconds = Math.floor((targetDate - now) / 1000);
             if (diffSeconds <= 0) {
-                alert("La hora seleccionada ya ha pasado.");
+                showToast("La hora seleccionada ya ha pasado.");
                 return;
             }
 
@@ -678,9 +734,10 @@
             startTimer();
         }
 
-        function startTimer() {
+        async function startTimer() {
             initAudio();
             clearInterval(timerInterval);
+            await requestWakeLock();
 
             const titleInput = document.getElementById('presTitle');
             const minsInput = document.getElementById('presMinutes');
@@ -722,7 +779,7 @@
                             playBeep('end');
                             document.getElementById('statusBadge').textContent = "¡Tiempo Extra!";
                             document.getElementById('statusBadge').className = "text-xs font-medium px-2.5 py-1 rounded-lg bg-rose-500/30 text-rose-400 border border-rose-500/50 animate-pulse";
-                            showNotification("¡Tiempo concluido! Iniciando conteo negativo...");
+                            showToast("¡Tiempo concluido! Iniciando conteo negativo...");
                         } else {
                             overtimeSeconds++;
                             if (overtimeSeconds % 5 === 0) {
@@ -742,20 +799,21 @@
             if (halfwayEnabled && remainingSeconds === halfwayPoint && totalSeconds > 20 && !halfwayTriggered) {
                 halfwayTriggered = true;
                 playBeep('halfway');
-                showNotification("¡Mitad del tiempo alcanzada!");
+                showToast("¡Mitad del tiempo alcanzada!");
             }
 
             if (remainingSeconds <= 5 && remainingSeconds > 0) {
                 if (!lastFiveSecTriggered[remainingSeconds]) {
                     lastFiveSecTriggered[remainingSeconds] = true;
                     playBeep('countdown_five');
-                    showNotification(`¡Atención! Quedan ${remainingSeconds} segundos`);
+                    showToast(`¡Atención! Quedan ${remainingSeconds} segundos`);
                 }
             }
         }
 
-        function showNotification(msg) {
+        function showToast(msg) {
             const subMsg = document.getElementById('subTimerMessage');
+            if(!subMsg) return;
             subMsg.textContent = msg;
             subMsg.className = "mt-2 text-xs sm:text-sm text-amber-500 font-bold animate-pulse px-2";
             setTimeout(() => {
@@ -785,6 +843,7 @@
 
         function resetTimer() {
             clearInterval(timerInterval);
+            releaseWakeLock();
             isRunning = false;
             isPaused = false;
             isOvertime = false;
